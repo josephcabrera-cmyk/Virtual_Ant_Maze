@@ -31,6 +31,7 @@ int main () {
 	int i, j, k, l; // increments
 	int x = 0, y = 0, xcount = 0; // coordinates
 	int n = 0, t = 0; // for RP_n_t
+	int repeatStart = 0, repeatEnd = 0, repeatsLeft = 0; // for RP_n_t
 	int steps = 0; // count for MAX_NUMBER_OF_STEPS
 	int mazeHeight, mazeDepth; //Size of maze from text
     int itchL = 0, itchR = 0, itchF = 0, itchB = 0; // itch and size
@@ -254,6 +255,8 @@ int main () {
 		}	// backtrack to a pop or push
 		
 		if ((strcmp (actions [l], "RP_n_t\n")) == 0) { // 17
+			n = 0; // stays 0 if nothing is typed
+			t = 0;
 			printf ("n = ");
 			scanf ("%d", &n);
 			getchar ();
@@ -261,163 +264,14 @@ int main () {
 			scanf ("%d", &t);
 			getchar ();	
    		 	 fprintf (fileOutput, "RP_n_t\n"); 
-		}	// repeat n actions t times
-		
-		if (t > 0) { // for RP_n_t
-			for (int r = 0; r < t; r++) {
-				for (int p = l + 1; i < l + 1 + n; i++) {
-					   		if ((strcmp (actions [l], "MARK\n")) == 0) { // 1
-			maze[x][y] = '+'; // local
-			antMemory.maze[x][y] = '+'; // stack
-
-    		fprintf (fileOutput, "MARK\n");
-    		// marking with "pheromone"
-
-    		printf ("Marked Maze:\n");
-			for (j = 0; j <= mazeDepth; j++) {
-    			for (k = 0; k <= mazeHeight; k++) {
-					printf ("%c", maze[k][j]);
-    	  	}
-				printf("\n");
-		}	// reprint maze after mark
-    } // marking with "pheromone"
-    		
-    	if ((strcmp (actions [l], "MOVE_F\n")) == 0) { // 2
-    		if(maze[x+1][y] != '*') {
-				x += 1; // move ant forward
-				fprintf (fileOutput, "MOVE_F\n"); 
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-				}
-		} 
-			
-		if ((strcmp (actions [l], "MOVE_B\n")) == 0) { // 3
-			if(maze[x-1][y] != '*') {
-   				x -= 1; // Move ant backward
-   				fprintf (fileOutput, "MOVE_B\n"); 
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-				   }
-		}
-			
-		if ((strcmp (actions [l], "MOVE_L\n")) == 0) { // 4
-			if(maze[x][y-1] != '*') {
-   				y -= 1; // Move ant left
-   				fprintf (fileOutput, "MOVE_L\n"); 
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-				}
-		}
-			
-		if ((strcmp (actions [l], "MOVE_R\n")) == 0) { // 5
-			if(maze[x][y+1] != '*') {
-  				y += 1; //Move ant right
-   				fprintf (fileOutput, "MOVE_R\n"); 
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-				}
-		}
-			
-		if ((strcmp (actions [l], "CWL\n")) == 0) { // 6
-			itchL = checkLeft(&antMemory,x, y, mazeHeight);
-			printf ("Itch %d spot(s) left\n", itchL);
-			fprintf (fileOutput, "CWL\n");
-		}	// detect left pheromone
-		
-		if ((strcmp (actions [l], "CWR\n")) == 0) { // 7
-   			itchR = checkRight(&antMemory, x, y, mazeHeight);
-			printf ("Itch %d spot(s) right\n", itchR);
-   			fprintf (fileOutput, "CWR\n");
-		}	// detect right pheromone
-		
-		if ((strcmp (actions [l], "CWF\n")) == 0) { // 8
-   			itchF = checkFront(&antMemory, x, y, mazeDepth);
-			printf ("Itch %d spot(s) front\n", itchF);
-   			fprintf (fileOutput, "CWF\n");
-		}	// detect front pheromone
-		
-		if ((strcmp (actions [l], "CWB\n")) == 0) { // 9
-		   	itchB = checkBack(&antMemory, x, y, mazeDepth);
-			printf ("Itch %d spot(s) back\n", itchB);
-   			fprintf (fileOutput, "CWB\n");
-		}	// detect back pheromone
-		
-		if ((strcmp (actions [l], "PUSH\n")) == 0) { // 10
-   			push (&antMemory, x, y);
-   			fprintf (fileOutput, "PUSH\n");
-		}	// remember position
-		
-		if ((strcmp (actions [l], "POP\n")) == 0) { // 11
-		   	pop (&antMemory, &x, &y);
-   			pop (&antMemory, &x, &y);
-   			fprintf (fileOutput, "POP\n");
-		}	// remember position and forget later
-		
-		if ((strcmp (actions [l], "PEEK\n")) == 0) { // 12
-		   	peek(&antMemory,0);
-   			peek(&antMemory,1);
-			fprintf (fileOutput, "PEEK\n"); 
-		}	// remember position and do not forget
-		
-		if ((strcmp (actions [l], "CLEAR\n")) == 0) { // 13
-			clear (&antMemory);
-			fprintf (fileOutput, "CLEAR\n"); 
-		}	// clear ants memory
-		
-		if ((strcmp (actions [l], "BJPI\n")) == 0) { // 14
-			if (itchL != 0) {
-				y -= itchL; // left amount of itch spots
-				itchL -= itchL; // get rid of left itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
+			if (n > 0 && t > 0 && l + 1 < steps) {
+				repeatStart = l + 1; // first action to repeat
+				repeatEnd = l + n; // last action to repeat
+				if (repeatEnd > steps - 1)
+					repeatEnd = steps - 1;
+				repeatsLeft = t;
 			}
-			else if (itchR != 0) {
-				y += itchR; // right amount of itch spots
-				itchR -= itchR; // get rid of right itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}
-			else if (itchF != 0) {
-				x += itchF; // forward amount of itch spots
-				itchF -= itchF; // get rid of forward itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}
-			else if (itchB != 0) {
-				x -= itchB; // backward amount of itch spots
-				itchB -= itchB; // get rid of backward itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}	
-			fprintf (fileOutput, "BJPI\n"); 
-		}	// bold jump for itching
-		
-		if ((strcmp (actions [l], "CJPI\n")) == 0) { // 15
-			if (itchL != 0) {
-				y -= 1; // left one spot if itch
-				itchL -= 1; // decrement left itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}
-			else if (itchR != 0) {
-				y += 1; // right one spot if itch
-				itchR -= 1; // decrement right itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}
-			else if (itchF != 0) {
-				x += 1; // forward one spot if itch
-				itchF -= 1; // decrement forward itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}
-			else if (itchB != 0) {
-				x -= 1; // backward one spot if itch
-				itchB -= 1; // decrement backward itch
-				printf ("Ant Location: x: %d y: %d\n", x, y);
-			}	
-   			 fprintf (fileOutput, "CJPI\n"); 
-		}	// cautious jump for itching
-		
-		if ((strcmp (actions [l], "BACKTRACK\n")) == 0) { // 16
-			backtrack (&antMemory, x, y, actions[l]);
-			
-   			 fprintf (fileOutput, "BACKTRACK\n"); 
-		}	// backtrack to a pop or push			
-				} // for
-			t--; // decrement for each repeat time
-			} // for
-		} // if
-		t--; // decrement
+		}	// repeat the next n actions t more times
 		
 		if (antMemory.maze[x][y] >= '1' && antMemory.maze[x][y] <= '9')  {
    		points += (antMemory.maze[x][y] - 48);
@@ -425,6 +279,11 @@ int main () {
    		maze[x][y] = ' ';
    		antMemory.maze[x][y] = 32; //ascii for space
    		} // calculating and displaying 'good deeds'
+
+		if (l == repeatEnd && repeatsLeft > 0) {
+			repeatsLeft--;
+			l = repeatStart - 1; // l++ takes the loop back to repeatStart
+		}	// RP_n_t: go back to the first repeated action
    		
    		
 	}  // for
