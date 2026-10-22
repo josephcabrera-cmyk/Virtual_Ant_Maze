@@ -24,6 +24,7 @@ int checkLeft(Stack *s, int x, int y, int length);
 int checkRight(Stack *s, int x, int y, int length);
 int checkFront(Stack *s, int x, int y, int length);
 int checkBack(Stack *s, int x, int y, int length);
+int isOpen (char maze[][MAX_SIZE], int x, int y);
 void backtrack (Stack *s, int x, int y, char *actions);
 // function declarations
 
@@ -123,7 +124,7 @@ int main () {
     } // marking with "pheromone"
     		
     	if ((strcmp (actions [l], "MOVE_F\n")) == 0) { // 2
-    		if(maze[x+1][y] != '*' && maze[x+1][y] != '+') {
+    		if (isOpen (maze, x + 1, y)) {
 				x += 1; // move ant forward
 				fprintf (fileOutput, "MOVE_F\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -131,7 +132,7 @@ int main () {
 		} 
 			
 		if ((strcmp (actions [l], "MOVE_B\n")) == 0) { // 3
-			if(maze[x-1][y] != '*' && maze[x+1][y] != '+') {
+			if (isOpen (maze, x - 1, y)) {
    				x -= 1; // Move ant backward
    				fprintf (fileOutput, "MOVE_B\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -139,7 +140,7 @@ int main () {
 		}
 			
 		if ((strcmp (actions [l], "MOVE_L\n")) == 0) { // 4
-			if(maze[x][y-1] != '*' && maze[x+1][y] != '+') {
+			if (isOpen (maze, x, y - 1)) {
    				y -= 1; // Move ant left
    				fprintf (fileOutput, "MOVE_L\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -147,7 +148,7 @@ int main () {
 		}
 			
 		if ((strcmp (actions [l], "MOVE_R\n")) == 0) { // 5
-			if(maze[x][y+1] != '*' && maze[x+1][y] != '+') {
+			if (isOpen (maze, x, y + 1)) {
   				y += 1; //Move ant right
    				fprintf (fileOutput, "MOVE_R\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -391,6 +392,10 @@ int checkBack(Stack *s, int x, int y, int length) {
 	}
 	return 0;
 }
+
+int isOpen (char maze[][MAX_SIZE], int x, int y) {
+	return maze[x][y] != '*' && maze[x][y] != '+';
+} // the ant can move into a cell that is not a wall and not marked
 
 void backtrack (Stack *s, int x, int y, char *actions) {
 	if (!isEmpty (s)) {
