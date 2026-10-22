@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define MAX_SIZE 100
-#define MAX_NUMBER_OF_STEPS 100
+#define MAX_NUMBER_OF_STEPS 1000
 #define MAX_INSTRUCTION_LENGTH 30
 
 typedef struct {
@@ -92,8 +92,9 @@ int main () {
 	} // allocate memory for maze in the stack
     
     while (steps < MAX_NUMBER_OF_STEPS && fgets (actions[steps], MAX_INSTRUCTION_LENGTH, fileInput1) != NULL) {
-    steps++; }	// assign instructions to actions array
-    steps = steps - 2; // whitespace at end of Ant_Instructions.txt
+    	if (actions[steps][0] != '\n')
+    		steps++; // skip blank lines, like the ones at the end of the file
+    }	// assign instructions to actions array
     
     x = 8;
     y = 10; // ant starting position
