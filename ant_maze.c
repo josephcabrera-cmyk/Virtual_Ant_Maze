@@ -24,17 +24,17 @@ int checkLeft(Stack *s, int x, int y, int length);
 int checkRight(Stack *s, int x, int y, int length);
 int checkFront(Stack *s, int x, int y, int length);
 int checkBack(Stack *s, int x, int y, int length);
-int isOpen (char maze[][MAX_SIZE], int x, int y);
+int isOpen (char maze[][MAX_SIZE], int x, int y, int width, int height);
 void backtrack (Stack *s, int x, int y, char *actions);
 // function declarations
 
 int main () {
 	int i, j, k, l; // increments
-	int x = 0, y = 0, xcount = 0; // coordinates
+	int x = 0, y = 0; // coordinates
 	int n = 0, t = 0; // for RP_n_t
 	int repeatStart = 0, repeatEnd = 0, repeatsLeft = 0; // for RP_n_t
 	int steps = 0; // count for MAX_NUMBER_OF_STEPS
-	int mazeHeight, mazeDepth; //Size of maze from text
+	int mazeWidth = 0, mazeHeight = 0; // size of maze from text, in columns and rows
     int itchL = 0, itchR = 0, itchF = 0, itchB = 0; // itch and size
     int points = 0; // good deeds
 	char maze [MAX_SIZE][MAX_SIZE], c; // local 2D array maze
@@ -58,24 +58,30 @@ int main () {
 		exit (1);
 	}	// check for files
 	
+	memset (maze, '*', sizeof (maze)); // cells missing from short rows count as walls
 	while ((fscanf (fileInput, "%c", &c)) == 1){
         if (c != '\n') {
 			maze[x][y] = c;
 			x++;
 		}
 		else {
+			if (x > mazeWidth)
+				mazeWidth = x; // longest row
 			y++;
 			x = 0;
-			xcount++;
 		}
     } // scan in maze.txt to maze array
-    
-    mazeHeight = y;
-    mazeDepth = xcount - 1; // Set maze dimensions
-    
+    if (x > 0) {
+    	if (x > mazeWidth)
+    		mazeWidth = x;
+    	y++;
+    } // last row had no newline
+
+    mazeHeight = y; // Set maze dimensions
+
     printf ("Starting Maze:\n");
-	for (i = 0; i <= mazeDepth; i++) {
-    	for (j = 0; j <= mazeHeight; j++) {
+	for (i = 0; i < mazeHeight; i++) {
+    	for (j = 0; j < mazeWidth; j++) {
     	    printf ("%c", maze[j][i]);
     	}
   	printf("\n");
@@ -83,11 +89,11 @@ int main () {
 	
     printf ("\n"); // separate for clarity
         
-	antMemory.maze = malloc(sizeof(int*) * mazeDepth);
-	for (i = 0; i < mazeDepth; i++) {
+	antMemory.maze = malloc(sizeof(int*) * mazeWidth);
+	for (i = 0; i < mazeWidth; i++) {
     	antMemory.maze[i] = malloc(sizeof(int) * mazeHeight);
 	}
-	for (i = 0; i < mazeDepth; i++) {
+	for (i = 0; i < mazeWidth; i++) {
     	for (j = 0; j < mazeHeight; j++) {
         	antMemory.maze[i][j] = maze[i][j];
     	}
@@ -115,8 +121,8 @@ int main () {
     		// marking with "pheromone"
 
     		printf ("Marked Maze:\n");
-			for (j = 0; j <= mazeDepth; j++) {
-    			for (k = 0; k <= mazeHeight; k++) {
+			for (j = 0; j < mazeHeight; j++) {
+    			for (k = 0; k < mazeWidth; k++) {
 					printf ("%c", maze[k][j]);
     	  	}
 				printf("\n");
@@ -124,7 +130,7 @@ int main () {
     } // marking with "pheromone"
     		
     	if ((strcmp (actions [l], "MOVE_F\n")) == 0) { // 2
-    		if (isOpen (maze, x + 1, y)) {
+    		if (isOpen (maze, x + 1, y, mazeWidth, mazeHeight)) {
 				x += 1; // move ant forward
 				fprintf (fileOutput, "MOVE_F\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -132,7 +138,7 @@ int main () {
 		} 
 			
 		if ((strcmp (actions [l], "MOVE_B\n")) == 0) { // 3
-			if (isOpen (maze, x - 1, y)) {
+			if (isOpen (maze, x - 1, y, mazeWidth, mazeHeight)) {
    				x -= 1; // Move ant backward
    				fprintf (fileOutput, "MOVE_B\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -140,7 +146,7 @@ int main () {
 		}
 			
 		if ((strcmp (actions [l], "MOVE_L\n")) == 0) { // 4
-			if (isOpen (maze, x, y - 1)) {
+			if (isOpen (maze, x, y - 1, mazeWidth, mazeHeight)) {
    				y -= 1; // Move ant left
    				fprintf (fileOutput, "MOVE_L\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -148,7 +154,7 @@ int main () {
 		}
 			
 		if ((strcmp (actions [l], "MOVE_R\n")) == 0) { // 5
-			if (isOpen (maze, x, y + 1)) {
+			if (isOpen (maze, x, y + 1, mazeWidth, mazeHeight)) {
   				y += 1; //Move ant right
    				fprintf (fileOutput, "MOVE_R\n"); 
 				printf ("Ant Location: x: %d y: %d\n", x, y);
@@ -168,13 +174,13 @@ int main () {
 		}	// detect right pheromone
 		
 		if ((strcmp (actions [l], "CWF\n")) == 0) { // 8
-   			itchF = checkFront(&antMemory, x, y, mazeDepth);
+   			itchF = checkFront(&antMemory, x, y, mazeWidth);
 			printf ("Itch %d spot(s) front\n", itchF);
    			fprintf (fileOutput, "CWF\n");
 		}	// detect front pheromone
 		
 		if ((strcmp (actions [l], "CWB\n")) == 0) { // 9
-		   	itchB = checkBack(&antMemory, x, y, mazeDepth);
+		   	itchB = checkBack(&antMemory, x, y, mazeWidth);
 			printf ("Itch %d spot(s) back\n", itchB);
    			fprintf (fileOutput, "CWB\n");
 		}	// detect back pheromone
@@ -288,7 +294,7 @@ int main () {
    		
    		
 	}  // for
-	for (i = 0; i < mazeDepth; i++) {
+	for (i = 0; i < mazeWidth; i++) {
     free(antMemory.maze[i]);
 	}
 	free(antMemory.maze);
@@ -354,7 +360,7 @@ int checkLeft(Stack *s, int x, int y, int length){
    		else
    			return open;
    	}
-   	return 0;
+   	return open; // reached the edge of the maze
 }
 
 int checkRight(Stack *s, int x, int y, int length) {
@@ -366,7 +372,7 @@ int checkRight(Stack *s, int x, int y, int length) {
    	 else 
 	 	return open;
     }
-    return 0;
+    return open; // reached the edge of the maze
 }
 
 int checkFront(Stack *s, int x, int y, int length){
@@ -378,7 +384,7 @@ int checkFront(Stack *s, int x, int y, int length){
    	 else
    	 	return open;
     }
-    return 0;
+    return open; // reached the edge of the maze
 }
 
 int checkBack(Stack *s, int x, int y, int length) {
@@ -390,10 +396,12 @@ int checkBack(Stack *s, int x, int y, int length) {
    	 else
    	 	return open;
 	}
-	return 0;
+	return open; // reached the edge of the maze
 }
 
-int isOpen (char maze[][MAX_SIZE], int x, int y) {
+int isOpen (char maze[][MAX_SIZE], int x, int y, int width, int height) {
+	if (x < 0 || x >= width || y < 0 || y >= height)
+		return 0; // the edge of the maze counts as a wall
 	return maze[x][y] != '*' && maze[x][y] != '+';
 } // the ant can move into a cell that is not a wall and not marked
 
