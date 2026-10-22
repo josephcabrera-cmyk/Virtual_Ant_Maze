@@ -25,7 +25,7 @@ int checkRight(Stack *s, int x, int y, int length);
 int checkFront(Stack *s, int x, int y, int length);
 int checkBack(Stack *s, int x, int y, int length);
 int isOpen (char maze[][MAX_SIZE], int x, int y, int width, int height);
-void backtrack (Stack *s, int x, int y, char *actions);
+void backtrack (Stack *s, int *x, int *y);
 // function declarations
 
 int main () {
@@ -192,13 +192,16 @@ int main () {
 		
 		if ((strcmp (actions [l], "POP\n")) == 0) { // 11
 		   	pop (&antMemory, &x, &y);
-   			pop (&antMemory, &x, &y);
    			fprintf (fileOutput, "POP\n");
 		}	// remember position and forget later
 		
 		if ((strcmp (actions [l], "PEEK\n")) == 0) { // 12
-		   	peek(&antMemory,0);
-   			peek(&antMemory,1);
+		   	if (!isEmpty (&antMemory)) {
+				x = peek (&antMemory, 0);
+				y = peek (&antMemory, 1);
+			}
+			else
+				printf ("Error: Stack is empty\n");
 			fprintf (fileOutput, "PEEK\n"); 
 		}	// remember position and do not forget
 		
@@ -256,7 +259,7 @@ int main () {
 		}	// cautious jump for itching
 		
 		if ((strcmp (actions [l], "BACKTRACK\n")) == 0) { // 16
-			backtrack (&antMemory, x, y, actions[l]);
+			backtrack (&antMemory, &x, &y);
 			
    			 fprintf (fileOutput, "BACKTRACK\n"); 
 		}	// backtrack to a pop or push
@@ -405,19 +408,10 @@ int isOpen (char maze[][MAX_SIZE], int x, int y, int width, int height) {
 	return maze[x][y] != '*' && maze[x][y] != '+';
 } // the ant can move into a cell that is not a wall and not marked
 
-void backtrack (Stack *s, int x, int y, char *actions) {
+void backtrack (Stack *s, int *x, int *y) {
 	if (!isEmpty (s)) {
-		int prevX, prevY;
-		pop (s, &prevX, &prevY);
-		if (prevX > x) 
-			actions = "MOVE_B\n";
-		else if (prevX < x) 
-			actions = "MOVE_F\n";
-		else if (prevY > y)
-			actions = "MOVE_L\n";
-		else if (prevY < y)
-			actions = "MOVE_R\n";
-		printf ("Ant Location: x: %d y: %d\n", x, y);
+		pop (s, x, y); // return to the last saved position
+		printf ("Ant Location: x: %d y: %d\n", *x, *y);
 	}
 	else {
 		printf ("Memory is empty\n");
