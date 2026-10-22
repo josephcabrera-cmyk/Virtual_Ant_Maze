@@ -1,0 +1,8 @@
+# Written by the program on every run
+Ant_Movements_Out.txt
+
+# Build output
+ant_maze
+*.exe
+*.o
+a.out
