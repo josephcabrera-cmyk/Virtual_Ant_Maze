@@ -30,10 +30,10 @@ void backtrack (Stack *s, int x, int y, char *actions);
 int main () {
 	int i, j, k, l; // increments
 	int x = 0, y = 0, xcount = 0; // coordinates
-	int n, t; // for RP_n_t
+	int n = 0, t = 0; // for RP_n_t
 	int steps = 0; // count for MAX_NUMBER_OF_STEPS
 	int mazeHeight, mazeDepth; //Size of maze from text
-    int itchL, itchR, itchF, itchB; // itch and size
+    int itchL = 0, itchR = 0, itchF = 0, itchB = 0; // itch and size
     int points = 0; // good deeds
 	char maze [MAX_SIZE][MAX_SIZE], c; // local 2D array maze
 	char actions [MAX_NUMBER_OF_STEPS][MAX_INSTRUCTION_LENGTH]; // stores instructions as strings
