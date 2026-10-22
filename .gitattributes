@@ -1,0 +1,4 @@
+# Check out text files with LF line endings on every platform. The program
+# compares each instruction line against strings like "MOVE_F\n", so input
+# files with Windows (CRLF) line endings stop any command from matching.
+* text=auto eol=lf
