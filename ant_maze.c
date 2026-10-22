@@ -422,7 +422,7 @@ int main () {
    		points += (antMemory.maze[x][y] - 48);
    		printf ("\ngood deeds: %d\n\n", points);
    		maze[x][y] = ' ';
-   		antMemory.maze[x][y] = '32'; //ascii for space
+   		antMemory.maze[x][y] = 32; //ascii for space
    		} // calculating and displaying 'good deeds'
    		
    		
@@ -533,7 +533,7 @@ int checkBack(Stack *s, int x, int y, int length) {
 }
 
 void backtrack (Stack *s, int x, int y, char *actions) {
-	if (!isEmpty) {
+	if (!isEmpty (s)) {
 		int prevX, prevY;
 		pop (s, &prevX, &prevY);
 		if (prevX > x) 
