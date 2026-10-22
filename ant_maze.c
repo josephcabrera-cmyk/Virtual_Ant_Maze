@@ -91,7 +91,7 @@ int main () {
     	}
 	} // allocate memory for maze in the stack
     
-    while (fgets (actions[steps], MAX_INSTRUCTION_LENGTH, fileInput1) != NULL && steps < MAX_NUMBER_OF_STEPS) {
+    while (steps < MAX_NUMBER_OF_STEPS && fgets (actions[steps], MAX_INSTRUCTION_LENGTH, fileInput1) != NULL) {
     steps++; }	// assign instructions to actions array
     steps = steps - 2; // whitespace at end of Ant_Instructions.txt
     
